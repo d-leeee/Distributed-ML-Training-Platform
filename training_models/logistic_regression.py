@@ -11,11 +11,14 @@
 # optional: PyTorch Neural Networks deep learning
 # optional: cross validation
 # optional: create mutliple training models
-from sklearn.linear_model import LogisticRegression
 
-class LogisticRegressionModel:
-    def train(self, params):
-        print("Training Logistic Regression with params:", params)
-    
+from sklearn.linear_model import LogisticRegression
+from training_models.parent_model import ParentModel as Model
+
+class LogisticRegressionModel(Model):
     def hyperparameters(self):
+        # implement later
         pass
+    
+    def create_model(self):
+        return LogisticRegression()

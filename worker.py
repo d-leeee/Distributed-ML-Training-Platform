@@ -9,13 +9,7 @@ class Worker:
         print("Worker started.")
 
     def process_job(self, job):
-        job_id = job['id']
-        job_type = job['type']
         train = Model()
-
-        if job_type in train.model:
-            result = train.model[job_type].train(job['parameters'])
-        else:
-            raise ValueError("Unknown job type")
-        self.queue.mark_completed(job_id, 'completed')
+        result = train.train(job['type'], job['description'], job['parameters'])
+        self.queue.mark_completed(job['id'], 'completed')
         return result

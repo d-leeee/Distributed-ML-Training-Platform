@@ -3,7 +3,7 @@ from job_queue import JobQueue
 
 if __name__ == "__main__":
     queue = JobQueue()
-    job1 = queue.submit_job('Logistic Regression', 'Train a logistic regression model', {'C': 1.0, 'max_iter': 100})
+    job1 = queue.submit_job('Logistic Regression', 'Iris', None)
     worker = Worker(queue)
     while True:
         job = queue.get_job()
