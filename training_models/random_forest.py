@@ -13,19 +13,25 @@
 # optional: create mutliple training models
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 from training_models.parent_model import ParentModel as Model
 
 class RandomForestModel(Model):
     def __init__(self, params=None):
-        default_params = {
+        self.params = {
             'n_estimators': 100,
             'max_depth': None,
             'min_samples_split': 2,
             'min_samples_leaf': 1,
             'random_state': 42,
         }
-        # if params provided, change settings
         if params:
-            default_params.update(params)
-        self.params = default_params
-        self.model = RandomForestClassifier(**self.params)
+            updated = False
+            for k, v in params.items():
+                if k in self.params:
+                    self.params[k] = v
+                    updated = True
+            if updated:
+                self.model = GridSearchCV(RandomForestClassifier(), self.params, cv=5)
+        else:
+            self.model = RandomForestClassifier(**self.params)

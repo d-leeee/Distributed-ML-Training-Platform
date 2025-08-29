@@ -1,7 +1,9 @@
 from training_models.logistic_regression import LogisticRegressionModel
 from training_models.random_forest import RandomForestModel
 
-from sklearn.datasets import load_iris, load_wine, load_breast_cancer
+from sklearn.datasets import load_iris, load_wine, load_breast_cancer, load_digits
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 import time
 
 # Add this import when you're ready for tuning:
@@ -18,7 +20,8 @@ class Model:
         self.data_set = {
             'Iris': load_iris(),
             'Wine': load_wine(),
-            'Breast Cancer': load_breast_cancer()
+            'Breast Cancer': load_breast_cancer(),
+            'Digits': load_digits()
         }
     
     def train(self, job):
@@ -34,11 +37,8 @@ class Model:
             # add hyperparameter tuning here when ready
             # self.alg[model_type].hyperparameters()
 
-            # fit the model
-            start = time.time()
+            # fit and evaluate (no tuning)
             model = algorithm.model.fit(x_train, y_train)
-            end = time.time()
-            print(f"Training time: {end - start} seconds")
 
             # evaluate model
             algorithm.evaluate(x_test, y_test, model)

@@ -13,11 +13,13 @@
 # optional: create mutliple training models
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
 from training_models.parent_model import ParentModel as Model
 
 class LogisticRegressionModel(Model):
-    def __init__(self, params=None):
-        default_params = {
+    def __init__(self, params):
+        # gridsearch can automatically set these params
+        self.params = {
             'C': 1.0,
             'penalty': 'l2',
             'solver': 'lbfgs',
@@ -26,8 +28,14 @@ class LogisticRegressionModel(Model):
             'class_weight': 'balanced',
             'random_state': 42,
         }
-        # if params provided, change settings
+        # Only update keys that exist in self.params
         if params:
-            default_params.update(params)
-        self.params = default_params
-        self.model = LogisticRegression(**self.params)
+            updated = False
+            for k, v in params.items():
+                if k in self.params:
+                    self.params[k] = v
+                    updated = True
+            if updated:
+                self.model = GridSearchCV(LogisticRegression(), self.params, cv=5)
+        else:
+            self.model = LogisticRegression(**self.params)
