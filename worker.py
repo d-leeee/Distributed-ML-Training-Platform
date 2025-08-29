@@ -9,7 +9,7 @@ class Worker:
         print("Worker started.")
 
     def process_job(self, job):
-        train = Model()
-        result = train.train(job['type'], job['description'], job['parameters'])
+        train = Model(job['parameters'])
+        result = train.train(job)
         self.queue.mark_completed(job['id'], 'completed')
         return result

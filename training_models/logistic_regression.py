@@ -16,9 +16,18 @@ from sklearn.linear_model import LogisticRegression
 from training_models.parent_model import ParentModel as Model
 
 class LogisticRegressionModel(Model):
-    def hyperparameters(self):
-        # implement later
-        pass
-    
-    def create_model(self):
-        return LogisticRegression()
+    def __init__(self, params=None):
+        default_params = {
+            'C': 1.0,
+            'penalty': 'l2',
+            'solver': 'lbfgs',
+            'max_iter': 100,
+            'fit_intercept': True,
+            'class_weight': 'balanced',
+            'random_state': 42,
+        }
+        # if params provided, change settings
+        if params:
+            default_params.update(params)
+        self.params = default_params
+        self.model = LogisticRegression(**self.params)
