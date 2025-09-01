@@ -1,12 +1,12 @@
 import uuid
-from training_models.models import Model
+from models import Model
 
 class Worker:
     def __init__(self, queue):
         self.worker_id = str(uuid.uuid4())
         self.queue = queue
 
-        print("Worker started.")
+        print("Worker started.", flush=True)
 
     def process_job(self, job):
         train = Model(job['parameters'])

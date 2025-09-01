@@ -14,7 +14,7 @@
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
-from training_models.parent_model import ParentModel as Model
+from parent_model import ParentModel as Model
 
 class LogisticRegressionModel(Model):
     def __init__(self, params):
@@ -36,6 +36,7 @@ class LogisticRegressionModel(Model):
                     self.params[k] = v
                     updated = True
             if updated:
-                self.model = GridSearchCV(LogisticRegression(), self.params, cv=5)
+                print("Finding best hyperparameters...", flush=True)
+                self.model = GridSearchCV(LogisticRegression(), self.params, cv=5, verbose=1)
         else:
             self.model = LogisticRegression(**self.params)

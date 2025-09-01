@@ -24,7 +24,7 @@ class ParentModel:
         recall = recall_score(y_test, predictions, average='weighted')
         f1 = f1_score(y_test, predictions, average='weighted')
 
-        print(f"Accuracy Score: {accuracy}")
-        print(f"Precision Score: {precision}")
-        print(f"Recall Score: {recall}")
-        print(f"F1 Score: {f1}")
+        print(f"Accuracy Score: {accuracy}", flush=True)
+        print(f"Precision Score: {precision}", flush=True)
+        print(f"Recall Score: {recall}", flush=True)
+        print(f"F1 Score: {f1}", flush=True)

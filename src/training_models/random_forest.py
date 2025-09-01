@@ -14,7 +14,7 @@
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-from training_models.parent_model import ParentModel as Model
+from parent_model import ParentModel as Model
 
 class RandomForestModel(Model):
     def __init__(self, params=None):
