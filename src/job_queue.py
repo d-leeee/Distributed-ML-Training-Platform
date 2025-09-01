@@ -1,11 +1,13 @@
 import redis
 import json
 import uuid
+import os
 from datetime import datetime
 
 class JobQueue:
     def __init__(self):
-        self.r = redis.Redis(host='localhost', port=6379, db=0)
+        redis_host = os.getenv('REDIS_HOST', 'localhost')
+        self.r = redis.Redis(host=redis_host, port=6379, db=0)
         self.queue_name = 'jobs'
 
     def submit_job(self, job_type, description, parameters):
@@ -28,7 +30,7 @@ class JobQueue:
             for k, v in job.items()
         })
 
-        print(f"Submitted Job {job['id']}")
+        print(f"Submitted Job {job['id']}", flush=True)
         return job
 
     def get_job(self):
@@ -47,12 +49,12 @@ class JobQueue:
             'completed_at': datetime.now().isoformat()
         }
         self.r.hset(f"job:{job_id}", mapping=updates)
-        print(f"Job {job_id} marked as {status}")
+        print(f"Job {job_id} marked as {status}", flush=True)
 
     def find_job(self, job_id):
         job_data = self.r.hgetall(job_id)
         if job_data:
             return {**job_data, 'id': job_id}
         else:
-            print("Job not found")
+            print("Job not found", flush=True)
         return None

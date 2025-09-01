@@ -34,10 +34,8 @@ class Model:
             # do split testing
             x_train, x_test, y_train, y_test = algorithm.split_test(x, y, job['parameters'])
 
-            # add hyperparameter tuning here when ready
-            # self.alg[model_type].hyperparameters()
-
             # fit and evaluate (no tuning)
+            print("Fitting model...", flush=True)
             model = algorithm.model.fit(x_train, y_train)
 
             # evaluate model
