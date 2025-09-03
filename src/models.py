@@ -39,6 +39,6 @@ class Model:
             model = algorithm.model.fit(x_train, y_train)
 
             # evaluate model
-            algorithm.evaluate(x_test, y_test, model)
+            algorithm.evaluate(x_test, y_test, model, job['id'])
         else:
             raise ValueError("Unknown model type or data set")

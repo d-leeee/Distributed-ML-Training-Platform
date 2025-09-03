@@ -1,0 +1,5 @@
+Delete all job keys from instance Docker
+docker exec distributed-ml-training-platform-redis-1 redis-cli DEL $(docker exec distributed-ml-training-platform-redis-1 redis-cli KEYS 'job:*')
+
+Delete entire all keys from redis database
+docker exec distributed-ml-training-platform-redis-1 redis-cli FLUSHDB
