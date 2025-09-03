@@ -1,6 +1,8 @@
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import os
+import redis
 
 # parent extends all algorithms
 class ParentModel:
@@ -15,7 +17,7 @@ class ParentModel:
 
         return x_train, x_test, y_train, y_test
     
-    def evaluate(self, x_test, y_test, model):
+    def evaluate(self, x_test, y_test, model, job_id):
         # provides metrics
         predictions = model.predict(x_test)
 
@@ -24,7 +26,13 @@ class ParentModel:
         recall = recall_score(y_test, predictions, average='weighted')
         f1 = f1_score(y_test, predictions, average='weighted')
 
-        print(f"Accuracy Score: {accuracy}", flush=True)
-        print(f"Precision Score: {precision}", flush=True)
-        print(f"Recall Score: {recall}", flush=True)
-        print(f"F1 Score: {f1}", flush=True)
+        redis_host = os.getenv('REDIS_HOST', 'localhost')
+        self.r = redis.Redis(host=redis_host, port=6379, db=0)
+
+        updates = {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1
+        }
+        self.r.hset(f"job:{job_id}", mapping=updates)

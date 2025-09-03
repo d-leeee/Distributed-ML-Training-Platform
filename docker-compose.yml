@@ -9,6 +9,7 @@ services:
       - redis
     environment:
       - REDIS_HOST=redis
+      - PYTHONPATH=/app/src
     restart: always
     deploy:
       replicas: 3
@@ -18,4 +19,14 @@ services:
       - redis
     environment:
       - REDIS_HOST=redis
-    command: python src/submit_jobs.py
+      - PYTHONPATH=/app/src
+    command: python src/scripts/submit_jobs.py
+  monitor:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - PYTHONPATH=/app/src
+    restart: always
+    command: python src/scripts/monitor.py

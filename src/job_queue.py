@@ -19,14 +19,19 @@ class JobQueue:
             'status': 'pending',
             'created_at': datetime.now().isoformat(),
             'completed_at': None,
-            'parameters': parameters
+            'parameters': parameters,
+            "accuracy": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "training_time": 0.0
         }
         # queue job to Redis
         self.r.rpush(self.queue_name, json.dumps(job))
 
         # store job in hash map
         self.r.hset(f"job:{job['id']}", mapping={
-            k: v if isinstance(v, str) else json.dumps(v) 
+            k: json.dumps(v) if isinstance(v, (dict, list)) else str(v)
             for k, v in job.items()
         })
 
@@ -52,7 +57,7 @@ class JobQueue:
         print(f"Job {job_id} marked as {status}", flush=True)
 
     def find_job(self, job_id):
-        job_data = self.r.hgetall(job_id)
+        job_data = self.r.hgetall(f"job:{job_id}")
         if job_data:
             return {**job_data, 'id': job_id}
         else:

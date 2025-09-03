@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 # EXPOSE 6379
 
 # Run your main script
-CMD ["python", "src/main.py"]
+CMD ["python", "src/scripts/main.py"]
