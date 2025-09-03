@@ -3,3 +3,12 @@ docker exec distributed-ml-training-platform-redis-1 redis-cli DEL $(docker exec
 
 Delete entire all keys from redis database
 docker exec distributed-ml-training-platform-redis-1 redis-cli FLUSHDB
+
+Run Redis inside Docker 
+docker compose up redis
+
+Run Redis inside Docker in Detached Mode
+docker compose up -d redis
+
+Run Main
+docker compose up --build --scale worker=3
