@@ -27,18 +27,21 @@ class Model:
     def train(self, job):
         # calls on the correct algorithm
         if job['type'] in self.alg and job['description'] in self.data_set:
-            algorithm = self.alg[job['type']]
-            x = self.data_set[job['description']].data
-            y = self.data_set[job['description']].target
+            try:
+                algorithm = self.alg[job['type']]
+                x = self.data_set[job['description']].data
+                y = self.data_set[job['description']].target
 
-            # do split testing
-            x_train, x_test, y_train, y_test = algorithm.split_test(x, y, job['parameters'])
+                # do split testing
+                x_train, x_test, y_train, y_test = algorithm.split_test(x, y, job['parameters'])
 
-            # fit and evaluate (no tuning)
-            print("Fitting model...", flush=True)
-            model = algorithm.model.fit(x_train, y_train)
+                # fit and evaluate (no tuning)
+                print("Fitting model...", flush=True)
+                model = algorithm.model.fit(x_train, y_train)
 
-            # evaluate model
-            algorithm.evaluate(x_test, y_test, model, job['id'])
+                # evaluate model
+                algorithm.evaluate(x_test, y_test, model, job['id'])
+            except Exception as e:
+                print(f"Error in fitting {job['id']}: {e}", flush=True)
         else:
             raise ValueError("Unknown model type or data set")
