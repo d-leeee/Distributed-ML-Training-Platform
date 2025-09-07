@@ -12,3 +12,8 @@ docker compose up -d redis
 
 Run Main
 docker compose up --build --scale worker=3
+
+
+docker compose up -d redis
+docker exec distributed-ml-training-platform-redis-1 redis-cli FLUSHDB
+docker compose up --build --scale worker=3

@@ -29,14 +29,17 @@ class LogisticRegressionModel(Model):
             'random_state': 42,
         }
         # Only update keys that exist in self.params
-        if params:
-            updated = False
-            for k, v in params.items():
-                if k in self.params:
-                    self.params[k] = v
-                    updated = True
-            if updated:
-                print("Finding best hyperparameters...", flush=True)
-                self.model = GridSearchCV(LogisticRegression(), self.params, cv=5, verbose=1)
-        else:
-            self.model = LogisticRegression(**self.params)
+        try:
+            if params:
+                updated = False
+                for k, v in params.items():
+                    if k in self.params:
+                        self.params[k] = v
+                        updated = True
+                if updated:
+                    print("Finding best hyperparameters...", flush=True)
+                    self.model = GridSearchCV(LogisticRegression(), self.params, cv=5, verbose=1)
+            else:
+                self.model = LogisticRegression(**self.params)
+        except Exception as e:
+            print(f"Error in initializing LogisticRegressionModel: {e}", flush=True)

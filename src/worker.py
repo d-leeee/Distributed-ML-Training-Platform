@@ -9,7 +9,13 @@ class Worker:
         print("Worker started.", flush=True)
 
     def process_job(self, job):
-        train = Model(job['parameters'])
-        result = train.train(job)
-        self.queue.mark_completed(job['id'], 'completed')
+        while True:
+            try:
+                train = Model(job['parameters'])
+                result = train.train(job)
+                self.queue.mark_completed(job['id'], 'completed')
+                break
+            except Exception as e:
+                print(f'Error Training {job["id"]}, trying again: {e}', flush=True)
+                self.queue.mark_completed(job['id'], 'failed')
         return result
