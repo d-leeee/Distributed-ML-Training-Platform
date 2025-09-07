@@ -47,7 +47,44 @@ Train, tune, and scale your machine learning models with ease using Python, scik
 	python src/main.py
 	```
 
+
 ### 🐳 Distributed/Docker Deployment
+
+---
+
+## 📝 Operational Notes & Useful Commands
+
+**Delete all job keys from Docker Redis instance:**
+```sh
+docker exec distributed-ml-training-platform-redis-1 redis-cli DEL $(docker exec distributed-ml-training-platform-redis-1 redis-cli KEYS 'job:*')
+```
+
+**Delete all keys from Redis database:**
+```sh
+docker exec distributed-ml-training-platform-redis-1 redis-cli FLUSHDB
+```
+
+**Run Redis inside Docker:**
+```sh
+docker compose up redis
+```
+
+**Run Redis inside Docker in Detached Mode:**
+```sh
+docker compose up -d redis
+```
+
+**Run Main (with 3 workers):**
+```sh
+docker compose up --build --scale worker=3
+```
+
+**Example: Clean start for distributed training**
+```sh
+docker compose up -d redis
+docker exec distributed-ml-training-platform-redis-1 redis-cli FLUSHDB
+docker compose up --build --scale worker=3
+```
 1. **Build and start containers:**
 	```bash
 	docker compose up --build --scale worker=3
