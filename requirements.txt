@@ -3,3 +3,4 @@ numpy
 pandas
 redis
 numpy
+fastapi[standard]

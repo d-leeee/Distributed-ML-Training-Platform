@@ -9,6 +9,8 @@ class JobQueue:
         redis_host = os.getenv('REDIS_HOST', 'localhost')
         self.r = redis.Redis(host=redis_host, port=6379, db=0)
         self.queue_name = 'jobs'
+        self.r.hsetnx("jobs_submitted", "count", 0)
+        self.r.hsetnx("jobs_completed", "count", 0)
 
     def submit_job(self, job_type, description, parameters):
         # job parameters

@@ -33,5 +33,5 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"Error processing job {job['id']}: {e}", flush=True)
         else:
-            print("All jobs processed.", flush=True)
-            break
+            time.sleep(1)
+            continue
