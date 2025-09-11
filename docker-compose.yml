@@ -13,14 +13,6 @@ services:
     restart: always
     deploy:
       replicas: 3
-  submitter:
-    build: .
-    depends_on:
-      - redis
-    environment:
-      - REDIS_HOST=redis
-      - PYTHONPATH=/app/src
-    command: python src/scripts/submit_jobs.py
   monitor:
     build: .
     depends_on:
@@ -35,7 +27,8 @@ services:
     depends_on:
       - redis
     environment:
-      - REDIS_HOST=redis
+    - REDIS_HOST=redis
+    - PYTHONPATH=/app/src
     command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
