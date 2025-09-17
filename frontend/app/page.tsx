@@ -1,7 +1,13 @@
+import Processor from "./components/processor";
+import Input from "./components/input";
+import Container from '@mui/material/Container';
+
 export default function Home() {
   return (
-    <main>
-      <h1>Welcome to the ML Training Platform</h1>
-    </main>
+    <div>
+      <Container maxWidth="xs">
+        <Input />
+      </Container>
+    </div>
   );
 }
