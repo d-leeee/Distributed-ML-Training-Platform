@@ -51,11 +51,6 @@ Train, tune, and scale your machine learning models with ease using Python, scik
 	```bash
 	redis-server
 	```
-4. **Run the main script:**
-	```bash
-	python src/submit_jobs.py
-	python src/main.py
-	```
 
 ### 🌐 Frontend (Next.js)
 
@@ -73,6 +68,11 @@ Train, tune, and scale your machine learning models with ease using Python, scik
 	- Dynamic model/solver/hyperparameter selection
 	- Form submission to FastAPI backend
 	- Real-time job status and results (if implemented)
+
+### Backend (Redis, Docker)
+	```bash
+	docker compose up --build --scale worker=3
+ 	```
 
 ### 🔗 API Integration
 
@@ -143,40 +143,7 @@ docker compose up -d redis
 docker exec distributed-ml-training-platform-redis-1 redis-cli FLUSHDB
 docker compose up --build --scale worker=3
 ```
-1. **Build and start containers:**
-	```bash
-	docker compose up --build --scale worker=3
-	```
-2. **Submit jobs:**
-	- Run `src/submit_jobs.py` locally or as a Docker service to add jobs to the queue.
-	- Workers will automatically pick up and process jobs.
-
 ---
-
-
-## 🗂️ Project Structure
-
-
-
-- `src/main.py` — Worker entry point for job processing
-- `src/submit_jobs.py` — Script for submitting jobs to Redis
-- `src/job_queue.py` — Redis job queue logic
-- `src/worker.py` — Worker class for processing jobs
-- `src/training_models/` — Model classes (Logistic Regression, Random Forest, etc.)
-- `examples/` — Example scripts for jobs and Redis usage
-
-
----
-
-## 🧩 Extending & Customizing
-
-
-
-- Add new models in `src/training_models/`
-- Add new datasets in `src/models.py`
-- Customize hyperparameter grids in `src/submit_jobs.py`
-- Scale workers with Docker Compose for parallel job processing
-
 ---
 
 ## 🎈 Tips & Fun Ideas
