@@ -10,22 +10,9 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { Typography } from '@mui/material';
+import { ModelProps } from '../../helper/model_components';
 
-export default function LogisticRegression() {
-    const [alignment, setAlignment] = React.useState('web');
-    const [solver, setSolver] = React.useState('');
-    const [classWeight, setClassWeight] = React.useState('');
-
-    const handleSolver = (event: SelectChangeEvent) => {
-        setSolver(event.target.value as string);
-    };
-    const handlePenalty = (
-        event: React.MouseEvent<HTMLElement>,
-        newAlignment: string,
-    ) => {
-        setAlignment(newAlignment);
-    };
-
+export default function LogisticRegression({ c, setC, solver, setSolver, penalty, setPenalty, maxIterations, setMaxIterations, fitIntercept, setFitIntercept, classWeight, setClassWeight, randomState, setRandomState, hyperparameters }: ModelProps) {
     const penaltyOptions: Record<string, string[]> = {
         liblinear: ["l1", "l2"],
         saga: ["l1", "l2", "elasticnet"],
@@ -41,7 +28,12 @@ export default function LogisticRegression() {
                     <Typography>C</Typography>
                 </Grid>
                 <Grid size={8}>
-                    <TextField style={{ width: '100%' }} placeholder="Enter values, separated by commas"></TextField>
+                    <TextField
+                        style={{ width: '100%' }}
+                        placeholder="Enter values, separated by commas"
+                        value={c}
+                        onChange={e => setC(e.target.value)}
+                    />
                 </Grid>
                 <Grid size={4}>
                     <Typography>Solver</Typography>
@@ -51,16 +43,16 @@ export default function LogisticRegression() {
                         <FormControl fullWidth>
                             <InputLabel id="solver">Solver</InputLabel>
                             <Select
-                            labelId="solver"
-                            id="solver"
-                            value={solver}
-                            label="Solver"
-                            onChange={handleSolver}
+                                labelId="solver"
+                                id="solver"
+                                value={solver}
+                                label="Solver"
+                                onChange={e => setSolver(e.target.value)}
                             >
-                            <MenuItem value="liblinear">Liblinear</MenuItem>
-                            <MenuItem value="saga">Saga</MenuItem>
-                            <MenuItem value="lbfgs">LBFGS</MenuItem>
-                            <MenuItem value="sag">Sag</MenuItem>
+                                <MenuItem value="liblinear">Liblinear</MenuItem>
+                                <MenuItem value="saga">Saga</MenuItem>
+                                <MenuItem value="lbfgs">LBFGS</MenuItem>
+                                <MenuItem value="sag">Sag</MenuItem>
                             </Select>
                         </FormControl>
                     </Box>
@@ -71,27 +63,35 @@ export default function LogisticRegression() {
                 <Grid size={8}>
                     <ToggleButtonGroup
                         color="primary"
-                        value={alignment}
+                        value={penalty}
                         exclusive
-                        onChange={handlePenalty}
                         aria-label="Platform"
+                        onChange={(event, penalty) => setPenalty(penalty)}
                     >
-                    {(penaltyOptions[solver] || []).map(p => (
-                        <ToggleButton key={p} value={p}>{p}</ToggleButton>
-                    ))}
+                        {(penaltyOptions[solver] || []).map(p => (
+                            <ToggleButton key={p} value={p}>{p}</ToggleButton>
+                        ))}
                     </ToggleButtonGroup>
                 </Grid>
                 <Grid size={4}>
                     <Typography>Max Iterations</Typography>
                 </Grid>
                 <Grid size={8}>
-                    <TextField style={{ width: '100%' }} placeholder="Enter values, separated by commas"></TextField>
+                    <TextField
+                        style={{ width: '100%' }}
+                        placeholder="Enter values, separated by commas"
+                        value={maxIterations}
+                        onChange={e => setMaxIterations(e.target.value)}
+                    />
                 </Grid>
                 <Grid size={4}>
                     <Typography>Fit Intercept</Typography>
                 </Grid>
                 <Grid size={8}>
-                    <Switch defaultChecked />
+                    <Switch
+                        defaultChecked
+                        onChange={e => setFitIntercept(e.target.checked)}
+                    />
                 </Grid>
                 <Grid size={4}>
                     <Typography>Class Weight</Typography>
@@ -99,14 +99,14 @@ export default function LogisticRegression() {
                 <Grid size={8}>
                     <ToggleButtonGroup
                         color="primary"
-                        value={alignment}
+                        value={classWeight}
                         exclusive
-                        onChange={handlePenalty}
+                        onChange={(event, value) => setClassWeight(value)}
                         aria-label="Platform"
                     >
-                        <ToggleButton value="balanced" onClick={() => setClassWeight('balanced')}>Balanced</ToggleButton>
-                        <ToggleButton value="custom" onClick={() => setClassWeight('custom')}>Custom</ToggleButton>
-                        <ToggleButton value="none" onClick={() => setClassWeight('none')}>None</ToggleButton>
+                        <ToggleButton value="balanced">Balanced</ToggleButton>
+                        <ToggleButton value="custom">Custom</ToggleButton>
+                        <ToggleButton value="none">None</ToggleButton>
                     </ToggleButtonGroup>
                     {classWeight === 'custom' && (
                         <TextField style={{ width: '100%', marginTop: '10px' }} placeholder='e.g., {0: 1, 1: 4}'></TextField>
@@ -116,9 +116,12 @@ export default function LogisticRegression() {
                     <Typography>Random State</Typography>
                 </Grid>
                 <Grid size={8}>
-                    <TextField></TextField>
+                    <TextField
+                        value={randomState}
+                        onChange={e => setRandomState(e.target.value)}
+                    />
                 </Grid>
             </Grid>
         </Box>
-    );  
+    );
 };

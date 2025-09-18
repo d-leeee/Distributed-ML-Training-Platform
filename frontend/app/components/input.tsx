@@ -15,19 +15,44 @@ export default function Input() {
     const [model, setModel] = React.useState("");
     const [dataset, setDataset] = React.useState("");
     const [enabled, setEnabled] = React.useState(false);
-    const handleModel = (event: SelectChangeEvent) => {
-        setModel(event.target.value as string);
-    };
-    const handleDataset = (event: SelectChangeEvent) => {
-        setDataset(event.target.value as string);
-    };
-
+    const [c, setC] = React.useState('');
+    const [solver, setSolver] = React.useState('');
+    const [penalty, setPenalty] = React.useState('');
+    const [maxIterations, setMaxIterations] = React.useState('');
+    const [fitIntercept, setFitIntercept] = React.useState(true);
+    const [classWeight, setClassWeight] = React.useState('');
+    const [randomState, setRandomState] = React.useState('');
     const models = ["Logistic Regression", "SVM"];
     const datasets = ["Iris", "Breast Cancer", "Wine"];
 
+    const Hyperparameters = ModelComponents[model];
+    const hyperparams = {
+        C: c ? c.split(',').map(Number) : undefined,
+        penalty: penalty ? [penalty] : undefined, // change to multiple options later
+        solver: solver ? [solver]: undefined,
+        max_iter: maxIterations ? maxIterations.split(',').map(Number) : undefined,
+        fit_intercept: fitIntercept ? [fitIntercept] : undefined,
+        class_weight: classWeight ? [classWeight] : undefined,
+        random_state: randomState ? [Number(randomState)] : undefined
+    }
+
+    const handleSubmit = async () => {
+        const response = await fetch('http://localhost:8000/create-job', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: model,
+                description: dataset,
+                parameters: enabled ? hyperparams : undefined
+            })
+        });
+        const data = await response.json();
+        console.log(data);
+    };
+
     return (
         <div>
-            <Typography >Model Type</Typography>
+            <Typography sx={{py:2}}>Model Type</Typography>
             <FormControl fullWidth>
                 <InputLabel id="model-list">Models</InputLabel>
                 <Select
@@ -35,14 +60,14 @@ export default function Input() {
                     id="model-lst"
                     value={model}
                     label="Models"
-                    onChange={handleModel}
+                    onChange={(e)=> setModel(e.target.value)}
                 >
                     {models.map(m => (
                         <MenuItem key={m} value={m}>{m}</MenuItem>
                     ))}
                 </Select>
             </FormControl>
-            <Typography>Dataset</Typography>
+            <Typography sx={{py:2}}>Dataset</Typography>
             <FormControl fullWidth>
                 <InputLabel id="dataset-list">Datasets</InputLabel>
                 <Select
@@ -50,7 +75,7 @@ export default function Input() {
                     id="dataset-list"
                     value={dataset}
                     label="Datasets"
-                    onChange={handleDataset}
+                    onChange={(e)=> setDataset(e.target.value)}
                 >
                     {datasets.map(d => (
                         <MenuItem key={d} value={d}>{d}</MenuItem>
@@ -68,10 +93,26 @@ export default function Input() {
             />
             {enabled && (
                 <div>
-                    {ModelComponents[model]}
+                    <Hyperparameters
+                        c={c}
+                        setC={setC}
+                        solver={solver}
+                        setSolver={setSolver}
+                        penalty={penalty}
+                        setPenalty={setPenalty}
+                        maxIterations={maxIterations}
+                        setMaxIterations={setMaxIterations}
+                        fitIntercept={fitIntercept}
+                        setFitIntercept={setFitIntercept}
+                        classWeight={classWeight}
+                        setClassWeight={setClassWeight} 
+                        randomState={randomState}
+                        setRandomState={setRandomState}
+                        hyperparameters={enabled}
+                    />
                 </div>
             )}
-            <Button variant="contained">Submit</Button>
+            <Button variant="contained" type="button" onClick={handleSubmit}>Submit</Button>
         </div>
     );
 };

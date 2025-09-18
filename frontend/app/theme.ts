@@ -2,13 +2,13 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
     typography: {
-        fontSize: 8
+        fontSize: 10
     },
     components: {
         MuiButton: {
             styleOverrides: {
                 root: {
-                    fontSize: '0.7rem',
+                    fontSize: '0.8rem',
                     padding: '2px 8px',
                 },
             },
@@ -16,14 +16,14 @@ const theme = createTheme({
         MuiTextField: {
             styleOverrides: {
                 root: {
-                    fontSize: '0.1rem',
+                    fontSize: '0.5rem',
                 },
             },
         },
         MuiInputBase: {
             styleOverrides: {
                 root: {
-                    fontSize: '0.5rem',
+                    fontSize: '0.6rem',
                 },
             },
         },
