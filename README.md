@@ -1,4 +1,14 @@
 # 🚀 Distributed ML Training Platform
+#
+## 🧑‍💻 Tech Stack
+
+- **Frontend:** Next.js (React, TypeScript), Material UI (Google UI components library)
+- **Backend:** FastAPI (Python)
+- **ML:** scikit-learn
+- **Queue/Cache:** Redis
+- **Orchestration:** Docker, Docker Compose
+- **Other:** CORS Middleware, tqdm, etc.
+
 
 
 
@@ -46,6 +56,54 @@ Train, tune, and scale your machine learning models with ease using Python, scik
 	python src/submit_jobs.py
 	python src/main.py
 	```
+
+### 🌐 Frontend (Next.js)
+
+1. **Install frontend dependencies:**
+	```bash
+	cd frontend
+	npm install
+	```
+2. **Start the frontend development server:**
+	```bash
+	npm run dev
+	# App runs at http://localhost:3000
+	```
+3. **Frontend features:**
+	- Dynamic model/solver/hyperparameter selection
+	- Form submission to FastAPI backend
+	- Real-time job status and results (if implemented)
+
+### 🔗 API Integration
+
+**Submit jobs from frontend:**
+Frontend sends POST requests to FastAPI backend (default: http://localhost:8000/create-job)
+
+Example fetch usage:
+```js
+await fetch('http://localhost:8000/create-job', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+	 type: model,
+	 description: dataset,
+	 parameters: enabled ? hyperparams : undefined
+  })
+});
+```
+
+**CORS Note:**
+Make sure FastAPI backend has CORS enabled:
+```python
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+	 CORSMiddleware,
+	 allow_origins=["http://localhost:3000"],
+	 allow_credentials=True,
+	 allow_methods=["*"],
+	 allow_headers=["*"],
+)
+```
 
 
 ### 🐳 Distributed/Docker Deployment
