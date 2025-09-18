@@ -3,8 +3,16 @@ from pydantic import BaseModel
 from typing import Any, List, Union, Optional
 import redis
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 r = redis.Redis(host=os.getenv('REDIS_HOST', 'localhost'), port=6379, db=0)
 
 @app.get("/jobs")
@@ -26,7 +34,7 @@ class CreateJobsRequest(BaseModel):
     jobs: List[CreateJobRequest]
 
 
-@app.post("/create_job", status_code=201)
+@app.post("/create-job", status_code=201)
 def create_job(req: Union[CreateJobRequest, List[CreateJobRequest]] = Body(...)):
     from job_queue import JobQueue
     queue = JobQueue()
