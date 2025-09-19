@@ -36,3 +36,5 @@ class ParentModel:
             "f1": f1
         }
         self.r.hset(f"job:{job_id}", mapping=updates)
+        # Also return metrics so callers can log/propagate results
+        return updates

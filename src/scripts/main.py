@@ -17,6 +17,7 @@ if __name__ == "__main__":
     while True:
         job = queue.get_job()
         if job:
+            result = None
             try:
                 print(f'Processing job: {job["description"]}', flush=True)
 
