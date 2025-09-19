@@ -1,29 +1,26 @@
-import os
 from time import sleep
-import redis
+from redis.redis_client import RedisClient 
 import numpy as np
 
 def metrics():
-    redis_host = os.getenv('REDIS_HOST', 'localhost')
-    r = redis.Redis(host=redis_host, port=6379, db=0)
     accumulative_training_time = 0
     total_training_time = 0
     sleep(3)
     while True:
-        if r.hget("jobs_completed", "count") == r.hget("jobs_submitted", "count"):
-            jobs = r.scan_iter("job:*")
+        if RedisClient.r.hget("jobs_completed", "count") == RedisClient.r.hget("jobs_submitted", "count"):
+            jobs = RedisClient.r.scan_iter("job:*")
             for k in jobs:
-                v = r.hgetall(k)
+                v = RedisClient.r.hgetall(k)
                 for field, value in v.items():
                     if field.decode('utf-8') != 'parameters':
-                        print(f"  {field.decode('utf-8')}: {value.decode('utf-8')}")
-                print("---------------------------------------------------")
+                        RedisClient.r.rpush("logs", f"  {field.decode('utf-8')}: {value.decode('utf-8')}")
+                RedisClient.r.rpush("logs", "---------------------------------------------------")
                 training_time = float(v.get(b"training_time", 0))
                 accumulative_training_time += training_time
                 total_training_time = np.maximum(total_training_time, training_time)
-            print(f"Accumulative training time of all workers: {accumulative_training_time} seconds")
-            print(f"Total training time of all workers: {total_training_time} seconds")
-            print(f"Time saved through distribution: {accumulative_training_time - total_training_time} seconds")
+            RedisClient.r.rpush("logs", f"Accumulative training time of all workers: {accumulative_training_time} seconds")
+            RedisClient.r.rpush("logs", f"Total training time of all workers: {total_training_time} seconds")
+            RedisClient.r.rpush("logs", f"Time saved through distribution: {accumulative_training_time - total_training_time} seconds")
             break
         else:
             sleep(2)

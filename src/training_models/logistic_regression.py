@@ -15,6 +15,7 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from parent_model import ParentModel as Model
+from redis.redis_client import RedisClient
 
 class LogisticRegressionModel(Model):
     def __init__(self, params):
@@ -37,9 +38,9 @@ class LogisticRegressionModel(Model):
                         self.params[k] = v
                         updated = True
                 if updated:
-                    print("Finding best hyperparameters...", flush=True)
+                    RedisClient.r.rpush("logs", "Finding best hyperparameters...")
                     self.model = GridSearchCV(LogisticRegression(), self.params, cv=5, verbose=1)
             else:
                 self.model = LogisticRegression(**self.params)
         except Exception as e:
-            print(f"Error in initializing LogisticRegressionModel: {e}", flush=True)
+            RedisClient.r.rpush("logs", f"Error in initializing LogisticRegressionModel: {e}")

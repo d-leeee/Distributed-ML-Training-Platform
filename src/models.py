@@ -5,6 +5,7 @@ from sklearn.datasets import load_iris, load_wine, load_breast_cancer, load_digi
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 import time
+from redis.redis_client import RedisClient 
 
 # Add this import when you're ready for tuning:
 from sklearn.model_selection import GridSearchCV
@@ -36,13 +37,13 @@ class Model:
                 x_train, x_test, y_train, y_test = algorithm.split_test(x, y, job['parameters'])
 
                 # fit and evaluate (no tuning)
-                print("Fitting model...", flush=True)
+                RedisClient.r.push("logs", "Fitting model...")
                 model = algorithm.model.fit(x_train, y_train)
 
                 # evaluate model and return metrics to caller
                 return algorithm.evaluate(x_test, y_test, model, job['id'])
             except Exception as e:
-                print(f"Error in fitting {job['id']}: {e}", flush=True)
+                RedisClient.r.push("logs", f"Error in fitting {job['id']}: {e}")
                 return None
         else:
             raise ValueError("Unknown model type or data set")

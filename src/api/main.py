@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Body
 from pydantic import BaseModel
 from typing import Any, List, Union, Optional
-import redis
-import os
 from fastapi.middleware.cors import CORSMiddleware
+from redis.redis_client import RedisClient 
 
 app = FastAPI()
 app.add_middleware(
@@ -13,13 +12,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-r = redis.Redis(host=os.getenv('REDIS_HOST', 'localhost'), port=6379, db=0)
 
 @app.get("/jobs")
 def list_jobs():
     jobs = []
-    for k in r.scan_iter("job:*"):
-        v = r.hgetall(k)
+    for k in RedisClient.r.scan_iter("job:*"):
+        v = RedisClient.r.hgetall(k)
         jobs.append({field.decode(): value.decode() for field, value in v.items()})
     return jobs 
 
@@ -45,5 +43,5 @@ def create_job(req: Union[CreateJobRequest, List[CreateJobRequest]] = Body(...))
         ids.append(job["id"])
 
     if ids:
-        r.hincrby("jobs_submitted", "count", len(ids))
+        RedisClient.r.hincrby("jobs_submitted", "count", len(ids))
     return {"submitted": len(ids), "job_ids": ids}

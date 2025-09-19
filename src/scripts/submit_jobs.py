@@ -1,11 +1,9 @@
 from job_queue import JobQueue
-import time
-import os
-import redis
+from redis.redis_client import RedisClient 
+
 
 def submit_jobs():
     queue = JobQueue()
-    r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=0)
     param_grid = {
         "C": [0.01, 0.1, 1, 10],
         "penalty": ["l1", "l2"],
@@ -22,8 +20,8 @@ def submit_jobs():
     count += 1
     job3 = queue.submit_job("Logistic Regression", "Breast Cancer", None)
     count += 1
-    r.hset("jobs_submitted", "count", count)
-    r.hset("jobs_completed", "count", 0)
+    RedisClient.r.hset("jobs_submitted", "count", count)
+    RedisClient.r.hset("jobs_completed", "count", 0)
 
 if __name__ == "__main__":
     submit_jobs()
