@@ -39,9 +39,10 @@ class Model:
                 print("Fitting model...", flush=True)
                 model = algorithm.model.fit(x_train, y_train)
 
-                # evaluate model
-                algorithm.evaluate(x_test, y_test, model, job['id'])
+                # evaluate model and return metrics to caller
+                return algorithm.evaluate(x_test, y_test, model, job['id'])
             except Exception as e:
                 print(f"Error in fitting {job['id']}: {e}", flush=True)
+                return None
         else:
             raise ValueError("Unknown model type or data set")

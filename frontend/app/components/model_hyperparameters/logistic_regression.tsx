@@ -6,13 +6,30 @@ import * as React from "react";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { Typography } from '@mui/material';
-import { ModelProps } from '../../helper/model_components';
 
-export default function LogisticRegression({ c, setC, solver, setSolver, penalty, setPenalty, maxIterations, setMaxIterations, fitIntercept, setFitIntercept, classWeight, setClassWeight, randomState, setRandomState, hyperparameters }: ModelProps) {
+export interface LogisticRegressionProps {
+    C?: number[] | undefined;
+    penalty?: string[] | undefined;
+    solver?: string[] | undefined;
+    max_iter?: number[] | undefined;
+    fit_intercept?: boolean[] | undefined;
+    class_weight?: string[] | undefined;
+    random_state?: number[] | undefined;
+}
+
+export function LogisticRegression(props: {onChange: (state: LogisticRegressionProps) => void}) {
+    const [c, setC] = React.useState('');
+    const [solver, setSolver] = React.useState('');
+    const [penalty, setPenalty] = React.useState('');
+    const [maxIterations, setMaxIterations] = React.useState('');
+    const [fitIntercept, setFitIntercept] = React.useState(true);
+    const [classWeight, setClassWeight] = React.useState('');
+    const [randomState, setRandomState] = React.useState('');
     const penaltyOptions: Record<string, string[]> = {
         liblinear: ["l1", "l2"],
         saga: ["l1", "l2", "elasticnet"],
@@ -20,6 +37,25 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
         "newton-cg": ["l2"],
         sag: ["l2"]
     };
+
+    // Keep latest onChange in a ref to avoid stale closure or adding props to deps
+    const onChangeRef = React.useRef(props.onChange);
+    React.useEffect(() => {
+        onChangeRef.current = props.onChange;
+    }, [props.onChange]);
+
+    // Notify parent whenever any hyperparameter changes, with parsed values
+    React.useEffect(() => {
+        onChangeRef.current({
+            C: c ? c.split(',').map((v) => Number(v.trim())).filter((n) => !Number.isNaN(n)) : undefined,
+            solver: solver ? [solver] : undefined,
+            penalty: penalty ? [penalty] : undefined,
+            max_iter: maxIterations ? maxIterations.split(',').map((v) => Number(v.trim())).filter((n) => !Number.isNaN(n)) : undefined,
+            fit_intercept: typeof fitIntercept === 'boolean' ? [fitIntercept] : undefined,
+            class_weight: classWeight ? [classWeight] : undefined,
+            random_state: randomState ? [Number(randomState)] : undefined,
+        });
+    }, [c, solver, penalty, maxIterations, fitIntercept, classWeight, randomState]);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -32,7 +68,9 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
                         style={{ width: '100%' }}
                         placeholder="Enter values, separated by commas"
                         value={c}
-                        onChange={e => setC(e.target.value)}
+                        onChange={(e) => {
+                            setC(e.target.value);
+                        }}
                     />
                 </Grid>
                 <Grid size={4}>
@@ -47,7 +85,9 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
                                 id="solver"
                                 value={solver}
                                 label="Solver"
-                                onChange={e => setSolver(e.target.value)}
+                                onChange={(e: SelectChangeEvent) => {
+                                    setSolver(e.target.value as string);
+                                }}
                             >
                                 <MenuItem value="liblinear">Liblinear</MenuItem>
                                 <MenuItem value="saga">Saga</MenuItem>
@@ -66,7 +106,9 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
                         value={penalty}
                         exclusive
                         aria-label="Platform"
-                        onChange={(event, penalty) => setPenalty(penalty)}
+                        onChange={(e, value) => {
+                            setPenalty(value);
+                        }}
                     >
                         {(penaltyOptions[solver] || []).map(p => (
                             <ToggleButton key={p} value={p}>{p}</ToggleButton>
@@ -81,7 +123,9 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
                         style={{ width: '100%' }}
                         placeholder="Enter values, separated by commas"
                         value={maxIterations}
-                        onChange={e => setMaxIterations(e.target.value)}
+                        onChange={(e) => {
+                            setMaxIterations(e.target.value);
+                        }}
                     />
                 </Grid>
                 <Grid size={4}>
@@ -89,8 +133,10 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
                 </Grid>
                 <Grid size={8}>
                     <Switch
-                        defaultChecked
-                        onChange={e => setFitIntercept(e.target.checked)}
+                        checked={fitIntercept}
+                        onChange={(e) => {
+                            setFitIntercept(e.target.checked);
+                        }}
                     />
                 </Grid>
                 <Grid size={4}>
@@ -101,7 +147,9 @@ export default function LogisticRegression({ c, setC, solver, setSolver, penalty
                         color="primary"
                         value={classWeight}
                         exclusive
-                        onChange={(event, value) => setClassWeight(value)}
+                        onChange={(e, value) => {
+                            setClassWeight(value);
+                        }}
                         aria-label="Platform"
                     >
                         <ToggleButton value="balanced">Balanced</ToggleButton>

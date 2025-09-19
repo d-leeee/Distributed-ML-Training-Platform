@@ -9,6 +9,7 @@ class Worker:
         print("Worker started.", flush=True)
 
     def process_job(self, job):
+        result = None
         try:
             train = Model(job['parameters'])
             result = train.train(job)
