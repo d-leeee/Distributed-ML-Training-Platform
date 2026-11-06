@@ -1,40 +1,35 @@
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-import os
-import redis
 
-# parent extends all algorithms
+
 class ParentModel:
-    def split_test(self, x, y, params):
-        # split test
+    """Shared setup for every algorithm.
+
+    DEFAULTS holds each algorithm's default hyperparameters. If a job passes parameters, any value
+    given as a list becomes a GridSearchCV grid (5-fold cross-validation); single values are fixed.
+    """
+
+    estimator = None
+    DEFAULTS = {}
+
+    def __init__(self, params=None):
+        params = {k: v for k, v in (params or {}).items() if k in self.DEFAULTS}
+        fixed = {**self.DEFAULTS, **{k: v for k, v in params.items() if not isinstance(v, list)}}
+        grid = {k: v for k, v in params.items() if isinstance(v, list)}
+        base = self.estimator(**fixed)
+        self.model = GridSearchCV(base, grid, cv=5, n_jobs=1) if grid else base
+
+    def split_test(self, x, y):
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=42)
-
-        # ml preprocessing
         scaler = MinMaxScaler()
-        x_train = scaler.fit_transform(x_train)
-        x_test = scaler.transform(x_test)
+        return scaler.fit_transform(x_train), scaler.transform(x_test), y_train, y_test
 
-        return x_train, x_test, y_train, y_test
-    
-    def evaluate(self, x_test, y_test, model, job_id):
-        # provides metrics
+    def evaluate(self, x_test, y_test, model):
         predictions = model.predict(x_test)
-
-        accuracy = accuracy_score(y_test, predictions)
-        precision = precision_score(y_test, predictions, average='weighted')
-        recall = recall_score(y_test, predictions, average='weighted')
-        f1 = f1_score(y_test, predictions, average='weighted')
-
-        redis_host = os.getenv('REDIS_HOST', 'localhost')
-        self.r = redis.Redis(host=redis_host, port=6379, db=0)
-
-        updates = {
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1": f1
+        return {
+            "accuracy": accuracy_score(y_test, predictions),
+            "precision": precision_score(y_test, predictions, average="weighted"),
+            "recall": recall_score(y_test, predictions, average="weighted"),
+            "f1": f1_score(y_test, predictions, average="weighted"),
         }
-        self.r.hset(f"job:{job_id}", mapping=updates)
-        # Also return metrics so callers can log/propagate results
-        return updates

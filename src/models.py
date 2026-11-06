@@ -1,48 +1,41 @@
+from functools import lru_cache
+
+from sklearn.datasets import load_breast_cancer, load_digits, load_iris, load_wine
+
 from training_models.logistic_regression import LogisticRegressionModel
 from training_models.random_forest import RandomForestModel
 
-from sklearn.datasets import load_iris, load_wine, load_breast_cancer, load_digits
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-import time
+ALGORITHMS = {
+    "Logistic Regression": LogisticRegressionModel,
+    "Random Forest": RandomForestModel,
+}
 
-# Add this import when you're ready for tuning:
-from sklearn.model_selection import GridSearchCV
+DATASETS = {
+    "Iris": load_iris,
+    "Wine": load_wine,
+    "Breast Cancer": load_breast_cancer,
+    "Digits": load_digits,
+}
 
-class Model:
-    def __init__(self, params):
-        # expand when ready
-        self.alg = {
-            'Logistic Regression': LogisticRegressionModel(params),
-            'Random Forest': RandomForestModel(params)
-        }
-        # expand when ready
-        self.data_set = {
-            'Iris': load_iris(),
-            'Wine': load_wine(),
-            'Breast Cancer': load_breast_cancer(),
-            'Digits': load_digits()
-        }
-    
-    def train(self, job):
-        # calls on the correct algorithm
-        if job['type'] in self.alg and job['description'] in self.data_set:
-            try:
-                algorithm = self.alg[job['type']]
-                x = self.data_set[job['description']].data
-                y = self.data_set[job['description']].target
 
-                # do split testing
-                x_train, x_test, y_train, y_test = algorithm.split_test(x, y, job['parameters'])
+@lru_cache(maxsize=None)
+def load_dataset(name):
+    data = DATASETS[name]()
+    return data.data, data.target
 
-                # fit and evaluate (no tuning)
-                print("Fitting model...", flush=True)
-                model = algorithm.model.fit(x_train, y_train)
 
-                # evaluate model and return metrics to caller
-                return algorithm.evaluate(x_test, y_test, model, job['id'])
-            except Exception as e:
-                print(f"Error in fitting {job['id']}: {e}", flush=True)
-                return None
-        else:
-            raise ValueError("Unknown model type or data set")
+def train_job(job):
+    """Train the requested model on the requested dataset and return its test metrics."""
+    if job["type"] not in ALGORITHMS:
+        raise ValueError(f"unknown model type {job['type']!r}")
+    if job["description"] not in DATASETS:
+        raise ValueError(f"unknown dataset {job['description']!r}")
+
+    algorithm = ALGORITHMS[job["type"]](job.get("parameters"))
+    x, y = load_dataset(job["description"])
+    x_train, x_test, y_train, y_test = algorithm.split_test(x, y)
+    model = algorithm.model.fit(x_train, y_train)
+    metrics = algorithm.evaluate(x_test, y_test, model)
+    if hasattr(model, "best_params_"):
+        metrics["best_params"] = model.best_params_
+    return metrics

@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Body
-from pydantic import BaseModel
-from typing import Any, List, Union, Optional
-import redis
-import os
+from typing import Any, List, Optional, Union
+
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from job_queue import JobQueue
 
 app = FastAPI()
 app.add_middleware(
@@ -13,37 +14,37 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-r = redis.Redis(host=os.getenv('REDIS_HOST', 'localhost'), port=6379, db=0)
+queue = JobQueue()
 
-@app.get("/jobs")
-def list_jobs():
-    jobs = []
-    for k in r.scan_iter("job:*"):
-        v = r.hgetall(k)
-        jobs.append({field.decode(): value.decode() for field, value in v.items()})
-    return jobs 
 
 class CreateJobRequest(BaseModel):
     type: str
     description: str
     parameters: Optional[dict[str, Any]] = None
-
-
-class CreateJobsRequest(BaseModel):
-    jobs: List[CreateJobRequest]
+    kind: str = "train"
 
 
 @app.post("/create-job", status_code=201)
 def create_job(req: Union[CreateJobRequest, List[CreateJobRequest]] = Body(...)):
-    from job_queue import JobQueue
-    queue = JobQueue()
-
     jobs = req if isinstance(req, list) else [req]
-    ids: List[str] = []
-    for j in jobs:
-        job = queue.submit_job(j.type, j.description, j.parameters)
-        ids.append(job["id"])
-
-    if ids:
-        r.hincrby("jobs_submitted", "count", len(ids))
+    ids = [queue.submit_job(j.type, j.description, j.parameters, kind=j.kind)["id"] for j in jobs]
     return {"submitted": len(ids), "job_ids": ids}
+
+
+@app.get("/jobs")
+def list_jobs():
+    ids = [k.split(":", 1)[1] for k in queue.r.scan_iter("job:*")]
+    return [queue.get_job(i) for i in ids]
+
+
+@app.get("/jobs/{job_id}")
+def get_job(job_id: str):
+    job = queue.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return job
+
+
+@app.get("/stats")
+def stats():
+    return queue.stats()
