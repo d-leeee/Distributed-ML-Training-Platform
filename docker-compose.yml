@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:latest
+    image: redis:7
     ports:
       - "6379:6379"
   worker:
@@ -11,6 +11,7 @@ services:
       - REDIS_HOST=redis
       - PYTHONPATH=/app/src
     restart: always
+    stop_grace_period: 30s   # SIGTERM lets a worker finish its current job and hand back the rest
     deploy:
       replicas: 3
   monitor:
@@ -27,8 +28,8 @@ services:
     depends_on:
       - redis
     environment:
-    - REDIS_HOST=redis
-    - PYTHONPATH=/app/src
+      - REDIS_HOST=redis
+      - PYTHONPATH=/app/src
     command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
